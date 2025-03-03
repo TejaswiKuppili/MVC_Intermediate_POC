@@ -1,0 +1,104 @@
+﻿@model IEnumerable<Swizom.ViewDataModels.OrderDTO>
+
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<h2 class="mb-4">Orders</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">
+    <i class="bi bi-plus-circle"></i> Place New Order
+</a>
+
+<div class="row">
+    @foreach (var order in Model)
+    {
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-person-circle"></i> @order.CustomerName
+                    </h5>
+
+                    <p>
+                        <i class="bi bi-telephone"></i> <strong>@order.CustomerPhone</strong>
+                    </p>
+
+                    <p class="text-muted">
+                        <i class="bi bi-geo-alt"></i> @order.DeliveryAddress
+                    </p>
+
+                    <p class="fw-bold">
+                        <i class="bi bi-cash"></i> @order.TotalAmount.ToString("C")
+                    </p>
+
+                    <p>
+                        <span class="badge bg-@GetStatusBadgeClass(order.Status.ToString())">
+                            <i class="bi bi-info-circle"></i> @order.Status
+                        </span>
+                    </p>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Edit" asp-route-id="@order.OrderID" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+
+                        <a asp-action="Delete" asp-route-id="@order.OrderID" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Pagination -->
+<nav>
+    <ul class="pagination justify-content-center">
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)">Previous</a>
+            </li>
+        }
+
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+            </li>
+        }
+
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)">Next</a>
+            </li>
+        }
+    </ul>
+</nav>
+
+<script>
+    // Initialize Bootstrap tooltips
+    document.addEventListener("DOMContentLoaded", function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Pending" => "warning",
+            "Processing" => "primary",
+            "Completed" => "success",
+            "Canceled" => "danger",
+            _ => "secondary"
+        };
+    }
+}

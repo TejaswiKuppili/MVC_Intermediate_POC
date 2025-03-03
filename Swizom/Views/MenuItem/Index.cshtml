@@ -1,0 +1,63 @@
+﻿@model IEnumerable<Swizom.ViewDataModels.MenuItemDTO>
+
+@{
+    ViewData["Title"] = "Menu Items";
+}
+
+<h2 class="mb-4">Menu Items</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">
+    <i class="bi bi-plus-circle"></i> Add New Item
+</a>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-box-seam"></i> @item.Name
+                    </h5>
+
+                    <h6 class="text-muted">
+                        <i class="bi bi-tag"></i> @item.CategoryName
+                    </h6>
+
+                    <p class="card-text">
+                        <span class="badge bg-success">@item.Price.ToString("C")</span>
+                    </p>
+
+                    <p class="text-muted">
+                        <i class="bi bi-shop"></i> <strong>@item.RestaurantName</strong>
+                    </p>
+
+                    <p class="description text-truncate" title="@item.Description">
+                        <i class="bi bi-info-circle"></i>
+                        @(item.Description.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)
+                    </p>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Edit" asp-route-id="@item.ItemID" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+
+                        <a asp-action="Delete" asp-route-id="@item.ItemID" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    // Initialize Bootstrap tooltips
+    document.addEventListener("DOMContentLoaded", function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>
