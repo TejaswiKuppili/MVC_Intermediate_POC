@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+    Layout = null;
+}
+
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #1a1a2e;
+        color: #fff;
+        font-family: 'Arial', sans-serif;
+        text-align: center;
+    }
+
+    .container {
+        animation: fadeIn 1.5s ease-in-out;
+        padding: 40px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    .lock-icon {
+        font-size: 60px;
+        animation: shake 1.5s infinite;
+    }
+
+    h2 {
+        margin-top: 10px;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    p {
+        margin: 10px 0 20px;
+    }
+
+    .btn-home {
+        display: inline-block;
+        background: #ff4b5c;
+        color: #fff;
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 18px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .btn-home:hover {
+        background: #e43f5a;
+        transform: scale(1.05);
+    }
+</style>
+
+<div class="container">
+    <div class="lock-icon">🔒</div>
+    <h2>Access Denied</h2>
+    <p>Oops! You don't have permission to access this page.</p>
+</div>

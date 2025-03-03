@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Swizom", "Swizom\Swizom.csproj", "{8D9D28C4-FB44-447F-816D-F4156B8B469C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwizomDbContext", "DbContext\SwizomDbContext.csproj", "{E58BF750-9F56-450C-A35F-3F8740685371}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8D9D28C4-FB44-447F-816D-F4156B8B469C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D9D28C4-FB44-447F-816D-F4156B8B469C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D9D28C4-FB44-447F-816D-F4156B8B469C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D9D28C4-FB44-447F-816D-F4156B8B469C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E58BF750-9F56-450C-A35F-3F8740685371}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E58BF750-9F56-450C-A35F-3F8740685371}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E58BF750-9F56-450C-A35F-3F8740685371}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E58BF750-9F56-450C-A35F-3F8740685371}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5CC1DCE8-D29C-4D98-8D8E-176177B6657B}
+	EndGlobalSection
+EndGlobal

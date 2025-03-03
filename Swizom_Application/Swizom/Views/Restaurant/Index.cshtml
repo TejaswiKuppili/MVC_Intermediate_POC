@@ -1,0 +1,80 @@
+﻿@model IEnumerable<SwizomDbContext.Models.Restaurant>
+
+@{
+    ViewData["Title"] = "Restaurants";
+}
+
+<h2 class="mb-4">Restaurants</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">
+    <i class="bi bi-plus-circle"></i> Add New Restaurant
+</a>
+
+<div class="row restaurant-cards">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-shop"></i> @item.Name
+                    </h5>
+
+                    <p class="text-muted address-text">
+                        <i class="bi bi-geo-alt"></i> <strong>@item.Address</strong>
+                    </p>
+
+                    <p>
+                        <i class="bi bi-telephone"></i> <strong>@item.ContactNumber</strong>
+                    </p>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Edit" asp-route-id="@item.RestaurantID" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+
+                        <a asp-action="Delete" asp-route-id="@item.RestaurantID" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Pagination -->
+<nav>
+    <ul class="pagination justify-content-center">
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@(ViewBag.CurrentPage - 1)">Previous</a>
+            </li>
+        }
+
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@i">@i</a>
+            </li>
+        }
+
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@(ViewBag.CurrentPage + 1)">Next</a>
+            </li>
+        }
+    </ul>
+</nav>
+
+<script>
+    // Initialize Bootstrap tooltips
+    document.addEventListener("DOMContentLoaded", function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+</script>

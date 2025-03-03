@@ -1,0 +1,24 @@
+﻿@model SwizomDbContext.Models.MenuCategory
+
+@{
+    ViewData["Title"] = "Create Category";
+}
+
+<h2>Create Menu Category</h2>
+
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="RestaurantID" class="control-label">Restaurant</label>
+        <select asp-for="RestaurantID" class="form-control" asp-items="@(new SelectList(ViewBag.Restaurants, "RestaurantID", "Name"))">
+            <option value="">-- Select a Restaurant --</option>
+        </select>
+        <span asp-validation-for="RestaurantID" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

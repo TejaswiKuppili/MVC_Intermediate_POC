@@ -1,0 +1,74 @@
+﻿@model Swizom.ViewDataModels.OrderDTO
+
+@{
+    ViewData["Title"] = "Create Order";
+}
+
+<h2>Create Order</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="CustomerName" class="control-label">Customer Name</label>
+        <input asp-for="CustomerName" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CustomerPhone" class="control-label">Customer Phone</label>
+        <input asp-for="CustomerPhone" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DeliveryAddress" class="control-label">Delivery Address</label>
+        <input asp-for="DeliveryAddress" class="form-control" required />
+    </div>
+
+    <h4>Order Items</h4>
+    <div id="order-items">
+        <div class="order-item row mb-2">
+            <div class="col-md-5">
+                <select name="ItemID" class="form-control" required>
+                    <option value="">Select a Menu Item</option>
+                    @foreach (var item in ViewBag.MenuItems)
+                    {
+                        <option value="@item.ItemID">@item.Name - @item.Price.ToString("C")</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="Quantity" class="form-control" placeholder="Quantity" required min="1" />
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeOrderItem(this)">❌</button>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-primary mt-2" onclick="addOrderItem()">➕ Add Another Item</button>
+
+    <br /><br />
+    <button type="submit" class="btn btn-success">Create Order</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script>
+    // Add another order item input section
+    function addOrderItem() {
+        var container = document.getElementById("order-items");
+        var newItem = container.children[0].cloneNode(true); // Clone the first item
+        // Clear the values of the cloned item
+        newItem.querySelector("select").value = "";  // Reset dropdown value
+        newItem.querySelector("input[type='number']").value = ""; // Reset quantity value
+        container.appendChild(newItem);
+    }
+
+    // Clear only the selected item and quantity value for the specific order item row
+    function removeOrderItem(button) {
+        var itemRow = button.closest(".order-item");
+        var selectElement = itemRow.querySelector("select");
+        var quantityElement = itemRow.querySelector("input[type='number']");
+
+        // Clear values instead of removing the whole row
+        selectElement.value = "";
+        quantityElement.value = "";
+    }
+</script>

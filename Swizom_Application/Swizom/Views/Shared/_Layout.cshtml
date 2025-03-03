@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Swizom</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(to right, #ff4b2b, #ff416c);
+            color: white;
+        }
+
+        .sidebar {
+            width: 270px;
+            height: 89.8vh;
+            position: fixed;
+            background: #1E1E2D;
+            color: white;
+            padding-top: 20px;
+            transition: all 0.3s;
+        }
+
+            .sidebar a {
+                display: block;
+                padding: 14px;
+                color: #bbb;
+                text-decoration: none;
+                border-radius: 8px;
+                margin: 5px 15px;
+                font-size: 12px;
+            }
+
+                .sidebar a:hover {
+                    background: #ff4b2b;
+                    color: white;
+                }
+
+            .sidebar .active {
+                background: #ff416c;
+                color: white;
+            }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            left: 10px;
+            top: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+            <div class="ms-auto">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Swizom</a>
+            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="d-flex">
+        <div class="sidebar" id="sidebar">
+            <h4 class="text-center mb-3">Swizom Admin</h4>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-controller="Restaurant" asp-action="Index" class="active">🏪 Manage Restaurants</a>
+                <a asp-controller="MenuCategory" asp-action="Index">📜 Manage Categories</a>
+                <a asp-controller="MenuItem" asp-action="Index">🍽️ Manage Menu Items</a>
+                <a href="#">📊 Analytics</a>
+                <a href="#">⚙️ Settings</a>
+            }
+            <a asp-controller="Order" asp-action="Index" class="active">🛒 Manage Orders</a>
+
+        </div>
+    </div>
+
+    <div class="main-content">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted text-center mt-4">
+        <div class="container" style="font-size: 12px;">
+            &copy; 2025 - Swizom - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        function toggleSidebar() {
+                    var sidebar = document.getElementById("sidebar");
+                    var mainContent = document.querySelector(".main-content");
+
+                    if (sidebar.classList.contains("collapsed")) {
+                        sidebar.classList.remove("collapsed");
+                        sidebar.style.width = "270px";
+                        mainContent.style.marginLeft = "270px";
+                    } else {
+                        sidebar.classList.add("collapsed");
+                        sidebar.style.width = "80px";
+                        mainContent.style.marginLeft = "80px";
+                    }
+                }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
