@@ -1,29 +1,44 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Swizom.Services;
 using SwizomDbContext;
 using SwizomDbContext.Models;
 
 namespace Swizom.Controllers
 {
-    [Authorize(Policy = "AdminOnly")]
+    //[Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "AdminAndEmployee")]
     public class RestaurantController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly ExceptionHandler _exceptionHandler;
 
-        public RestaurantController(AppDbContext context)
+        public RestaurantController(AppDbContext context, ExceptionHandler exceptionHandler)
         {
             _context = context;
+            _exceptionHandler = exceptionHandler;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 6)
         {
-            var restaurants = await _context.Restaurants.ToListAsync();
-            var paginatedRestaurants = restaurants.Skip((page - 1) * pageSize).Take(pageSize);
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            {
+                var restaurants = await _context.Restaurants.ToListAsync();
 
-            ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling((double)restaurants.Count() / pageSize);
-            return View(paginatedRestaurants);
+                if (restaurants == null)
+                {
+                    return StatusCode(500, "Failed to retrieve restaurants.");
+                }
+
+                var paginatedRestaurants = restaurants.Skip((page - 1) * pageSize).Take(pageSize);
+
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = (int)Math.Ceiling((double)restaurants.Count() / pageSize);
+
+                return View(paginatedRestaurants);
+            }, "Index");
         }
 
         public IActionResult Create()
@@ -35,67 +50,81 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Restaurant restaurant)
         {
-            if (ModelState.IsValid)
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                _context.Add(restaurant);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(restaurant);
+                if (ModelState.IsValid)
+                {
+                    _context.Add(restaurant);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(restaurant);
+            }, "Create");
         }
-
         public async Task<IActionResult> Edit(int id)
         {
-            var restaurant = await _context.Restaurants.FindAsync(id);
-            if (restaurant == null)
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                return NotFound();
-            }
-            return View(restaurant);
+                var restaurant = await _context.Restaurants.FindAsync(id);
+                if (restaurant == null)
+                {
+                    return NotFound();
+                }
+                return View(restaurant);
+            }, "Edit");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Restaurant restaurant)
         {
-            if (id != restaurant.RestaurantID)
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                return NotFound();
-            }
+                if (id != restaurant.RestaurantID)
+                {
+                    return NotFound();
+                }
 
-            if (ModelState.IsValid)
-            {
-                _context.Update(restaurant);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(restaurant);
+                if (ModelState.IsValid)
+                {
+                    _context.Update(restaurant);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(restaurant);
+            }, "Edit");
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var restaurant = await _context.Restaurants.FindAsync(id);
-            if (restaurant == null)
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                return NotFound();
-            }
-            return View(restaurant);
+                var restaurant = await _context.Restaurants.FindAsync(id);
+                if (restaurant == null)
+                {
+                    return NotFound();
+                }
+                return View(restaurant);
+            }, "Delete");
         }
 
         [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var restaurant = await _context.Restaurants
-                .Include(r => r.MenuCategories).FirstOrDefaultAsync(r => r.RestaurantID == id);
-
-            if (restaurant != null)
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                _context.MenuCategories.RemoveRange(restaurant.MenuCategories);
-                _context.Restaurants.Remove(restaurant);
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Index));
+                var restaurant = await _context.Restaurants
+                    .Include(r => r.MenuCategories).FirstOrDefaultAsync(r => r.RestaurantID == id);
+
+                if (restaurant != null)
+                {
+                    _context.MenuCategories.RemoveRange(restaurant.MenuCategories);
+                    _context.Restaurants.Remove(restaurant);
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToAction(nameof(Index));
+            }, "DeleteConfirmed");
         }
     }
 }

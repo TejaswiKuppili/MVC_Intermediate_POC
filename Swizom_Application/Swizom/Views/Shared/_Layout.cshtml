@@ -84,7 +84,7 @@
         <div class="sidebar" id="sidebar">
             <h4 class="text-center mb-3">Swizom Admin</h4>
 
-            @if (User.IsInRole("Admin"))
+            @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
             {
                 <a asp-controller="Restaurant" asp-action="Index" class="active">🏪 Manage Restaurants</a>
                 <a asp-controller="MenuCategory" asp-action="Index">📜 Manage Categories</a>

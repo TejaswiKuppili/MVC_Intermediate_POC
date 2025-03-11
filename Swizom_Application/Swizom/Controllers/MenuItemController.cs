@@ -5,24 +5,31 @@ using Microsoft.EntityFrameworkCore;
 using Swizom.ViewDataModels;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Authorization;
+using Swizom.Services;
 
 namespace Swizom.Controllers
 {
-    [Authorize(Policy = "AdminOnly")]
+    //[Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "AdminAndEmployee")]
     public class MenuItemController : Controller
     {
         private readonly AppDbContext _context;
         private readonly IMemoryCache _cache;
-        public MenuItemController(AppDbContext context, IMemoryCache cache)
+        private readonly ExceptionHandler _exceptionHandler;
+
+        public MenuItemController(AppDbContext context, IMemoryCache cache, ExceptionHandler exceptionHandler)
         {
             _context = context;
             _cache = cache;
+            _exceptionHandler = exceptionHandler;
         }
 
         // GET: MenuItem/Index
         public async Task<IActionResult> Index()
         {
-            var menuItems = await (from m in _context.MenuItems
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            {
+                var menuItems = await (from m in _context.MenuItems
                                        join c in _context.MenuCategories on m.CategoryID equals c.CategoryID
                                        join r in _context.Restaurants on m.RestaurantID equals r.RestaurantID
                                        select new MenuItemDTO
@@ -34,15 +41,19 @@ namespace Swizom.Controllers
                                            CategoryName = c.Name,
                                            RestaurantName = r.Name
                                        }).ToListAsync();
-            return View(menuItems);
+                return View(menuItems);
+            }, "Error in Index method");
         }
 
         // GET: MenuItem/Create
         public async Task<IActionResult> Create()
         {
-            ViewBag.Categories = await _context.MenuCategories.ToListAsync();
-            ViewBag.Restaurants = await _context.Restaurants.ToListAsync();
-            return View();
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            {
+                ViewBag.Categories = await _context.MenuCategories.ToListAsync();
+                ViewBag.Restaurants = await _context.Restaurants.ToListAsync();
+                return View();
+            }, "Error in Create method");
         }
 
         // POST: MenuItem/Create
@@ -50,36 +61,42 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MenuItem menuItem)
         {
-            var category = await _context.MenuCategories.FindAsync(menuItem.CategoryID);
-            var restaurant = await _context.Restaurants.FindAsync(menuItem.RestaurantID);
-
-            if (category is null && restaurant is null)
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                ModelState.AddModelError("CategoryID", "Selected category does not exist.");
-                ModelState.AddModelError("RestaurantID", "Selected restaurant does not exist.");
-                ViewBag.Categories = await _context.MenuCategories.ToListAsync();
-                ViewBag.Restaurants = await _context.Restaurants.ToListAsync();
-                return View(menuItem);
-            }
+                var category = await _context.MenuCategories.FindAsync(menuItem.CategoryID);
+                var restaurant = await _context.Restaurants.FindAsync(menuItem.RestaurantID);
 
-            menuItem.Category = category;
-            menuItem.Restaurant = restaurant;
-            _context.MenuItems.Add(menuItem);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                if (category is null || restaurant is null)
+                {
+                    ModelState.AddModelError("CategoryID", "Selected category does not exist.");
+                    ModelState.AddModelError("RestaurantID", "Selected restaurant does not exist.");
+                    ViewBag.Categories = await _context.MenuCategories.ToListAsync();
+                    ViewBag.Restaurants = await _context.Restaurants.ToListAsync();
+                    return View(menuItem);
+                }
+
+                menuItem.Category = category;
+                menuItem.Restaurant = restaurant;
+                _context.MenuItems.Add(menuItem);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }, "Error in Create POST method");
         }
 
         // GET: MenuItem/Edit/{id}
         public async Task<IActionResult> Edit(int id)
         {
-            var menuItem = await _context.MenuItems.FindAsync(id);
-            if (menuItem == null)
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                return NotFound();
-            }
-            ViewBag.Categories = await _context.MenuCategories.ToListAsync();
-            ViewBag.Restaurants = await _context.Restaurants.ToListAsync();
-            return View(menuItem);
+                var menuItem = await _context.MenuItems.FindAsync(id);
+                if (menuItem == null)
+                {
+                    return NotFound();
+                }
+                ViewBag.Categories = await _context.MenuCategories.ToListAsync();
+                ViewBag.Restaurants = await _context.Restaurants.ToListAsync();
+                return View(menuItem);
+            }, "Error in Edit method");
         }
 
         // POST: MenuItem/Edit/{id}
@@ -87,39 +104,45 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, MenuItem menuItem)
         {
-            if (id != menuItem.ItemID)
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                return NotFound();
-            }
+                if (id != menuItem.ItemID)
+                {
+                    return NotFound();
+                }
 
-            var category = await _context.MenuCategories.FindAsync(menuItem.CategoryID);
-            var restaurant = await _context.Restaurants.FindAsync(menuItem.RestaurantID);
+                var category = await _context.MenuCategories.FindAsync(menuItem.CategoryID);
+                var restaurant = await _context.Restaurants.FindAsync(menuItem.RestaurantID);
 
-            if (category is null && restaurant is null)
-            {
-                ModelState.AddModelError("CategoryID", "Selected category does not exist.");
-                ModelState.AddModelError("RestaurantID", "Selected restaurant does not exist.");
-                ViewBag.Categories = await _context.MenuCategories.ToListAsync();
-                ViewBag.Restaurants = await _context.Restaurants.ToListAsync();
-                return View(menuItem);
-            }
+                if (category is null || restaurant is null)
+                {
+                    ModelState.AddModelError("CategoryID", "Selected category does not exist.");
+                    ModelState.AddModelError("RestaurantID", "Selected restaurant does not exist.");
+                    ViewBag.Categories = await _context.MenuCategories.ToListAsync();
+                    ViewBag.Restaurants = await _context.Restaurants.ToListAsync();
+                    return View(menuItem);
+                }
 
-            menuItem.Category = category;
-            menuItem.Restaurant = restaurant;
-            _context.Update(menuItem);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                menuItem.Category = category;
+                menuItem.Restaurant = restaurant;
+                _context.Update(menuItem);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }, "Error in Edit POST method");
         }
 
         // GET: MenuItem/Delete/{id}
         public async Task<IActionResult> Delete(int id)
         {
-            var menuItem = await _context.MenuItems.FindAsync(id);
-            if (menuItem == null)
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                return NotFound();
-            }
-            return View(menuItem);
+                var menuItem = await _context.MenuItems.FindAsync(id);
+                if (menuItem == null)
+                {
+                    return NotFound();
+                }
+                return View(menuItem);
+            }, "Error in Delete method");
         }
 
         // POST: MenuItem/Delete/{id}
@@ -127,13 +150,16 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var menuItem = await _context.MenuItems.FindAsync(id);
-            if (menuItem != null)
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                _context.MenuItems.Remove(menuItem);
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Index));
+                var menuItem = await _context.MenuItems.FindAsync(id);
+                if (menuItem != null)
+                {
+                    _context.MenuItems.Remove(menuItem);
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToAction(nameof(Index));
+            }, "Error in DeleteConfirmed method");
         }
     }
 }

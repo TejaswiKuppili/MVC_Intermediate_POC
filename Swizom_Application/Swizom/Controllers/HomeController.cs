@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Swizom.Models;
+using Swizom.Services;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -10,41 +12,50 @@ namespace Swizom.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ExceptionHandler _exceptionHandler;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ExceptionHandler exceptionHandler)
         {
             _logger = logger;
+            _exceptionHandler = exceptionHandler;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-
-            if (userRole == "Employee")
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                return RedirectToAction("Index", "Order");
-            }
-            return View();
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (userRole == "Employee")
+                {
+                    return RedirectToAction("Index", "Order");
+                }
+                return View();
+            }, "Index");
         }
 
-        public IActionResult Users()
+        public async Task<IActionResult> Users()
         {
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
-            // If the user does not have a specific role, redirect to Access Denied
-            if (string.IsNullOrEmpty(userRole) || userRole != "Admin")
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                return RedirectToAction("AccessDenied", "Account");
-            }
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
-            var userInfo = new
-            {
-                Name = User.Identity.Name,
-                Email = User.FindFirst(ClaimTypes.Email)?.Value,
-                ObjectId = User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value,
-                Roles = User.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList()
-            };
+                // If the user does not have a specific role, redirect to Access Denied
+                if (string.IsNullOrEmpty(userRole) || userRole != "Admin")
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
 
-            return View(userInfo);
+                var userInfo = new
+                {
+                    Name = User.Identity?.Name ?? "Unknown",
+                    Email = User.FindFirst(ClaimTypes.Email)?.Value ?? "Not Available",
+                    ObjectId = User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier")?.Value ?? "Not Available",
+                    Roles = User.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList()
+                };
+
+                return View(userInfo);
+            }, "Users");
         }
 
         public IActionResult Privacy()
