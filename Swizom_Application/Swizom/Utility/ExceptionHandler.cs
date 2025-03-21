@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
-namespace Swizom.Services
+namespace Swizom.Utility
 {
     public class ExceptionHandler
     {

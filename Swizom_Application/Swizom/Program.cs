@@ -3,6 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Web;
+using Swizom.Repository.IRepository;
+using Swizom.Repository;
+using Swizom.Services.IServices;
+using Swizom.Services;
+using Swizom.Utility;
 using SwizomDbContext;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +29,18 @@ builder.Services.AddAuthorization(options =>
         ));
 });
 
+//Reduces response size for faster client-side rendering
+
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+});
+
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
+builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+builder.Services.AddScoped<ExceptionHandler>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -41,6 +58,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseResponseCompression();
 
 app.MapControllerRoute(
     name: "default",

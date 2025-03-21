@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Swizom.ViewDataModels;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
-using Swizom.Services;
+using Swizom.Utility;
 
 namespace Swizom.Controllers
 {

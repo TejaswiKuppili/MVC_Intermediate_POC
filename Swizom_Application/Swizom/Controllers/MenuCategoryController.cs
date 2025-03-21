@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Swizom.Services;
+using Swizom.Utility;
 using Swizom.ViewDataModels;
 using SwizomDbContext;
 using SwizomDbContext.Models;
 
 namespace Swizom.Controllers
 {
-    //[Authorize(Policy = "AdminOnly")]
-    [Authorize(Policy = "AdminAndEmployee")]
+    [Authorize(Policy = "AdminOnly")]
+    //[Authorize(Policy = "AdminAndEmployee")]
     public class MenuCategoryController : Controller
     {
         private readonly AppDbContext _context;

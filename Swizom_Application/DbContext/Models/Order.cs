@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SwizomDbContext.Models
@@ -29,6 +30,7 @@ namespace SwizomDbContext.Models
         public List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 
+    [Index(nameof(ItemID))]
     public class OrderItem
     {
         [Key]
