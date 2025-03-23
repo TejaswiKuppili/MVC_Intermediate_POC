@@ -39,7 +39,7 @@ builder.Services.AddResponseCompression(options =>
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
-builder.Services.AddScoped<ExceptionHandler>();
+builder.Services.AddSingleton<ExceptionHandler>();
 
 var app = builder.Build();
 

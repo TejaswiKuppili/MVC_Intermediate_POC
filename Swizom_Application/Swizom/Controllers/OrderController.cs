@@ -69,7 +69,7 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Order order, int[] ItemID, int[] Quantity)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 if (ItemID.Length > 0)
                 {
@@ -105,7 +105,7 @@ namespace Swizom.Controllers
         // GET: Order/Edit/{id}
         public async Task<IActionResult> Edit(int id)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var order = await _context.Orders
                     .Include(o => o.OrderItems)
@@ -144,7 +144,7 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, OrderDTO orderDto)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 if (id != orderDto.OrderID)
                 {
@@ -177,7 +177,7 @@ namespace Swizom.Controllers
         // GET: Order/Delete/{id}
         public async Task<IActionResult> Delete(int id)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var order = await _context.Orders.FindAsync(id);
                 if (order == null)

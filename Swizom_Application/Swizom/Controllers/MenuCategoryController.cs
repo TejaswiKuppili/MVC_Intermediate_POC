@@ -50,7 +50,7 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MenuCategory category)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var restaurant = await _context.Restaurants.FindAsync(category.RestaurantID);
                 if (restaurant == null)
@@ -68,7 +68,7 @@ namespace Swizom.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var category = await _context.MenuCategories.FindAsync(id);
                 if (category == null)
@@ -84,7 +84,7 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, MenuCategory category)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 if (id != category.CategoryID)
                 {
@@ -106,7 +106,7 @@ namespace Swizom.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var category = await _context.MenuCategories.FindAsync(id);
                 if (category == null)

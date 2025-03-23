@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SwizomDbContext.Models;
 using SwizomDbContext;
-using Microsoft.EntityFrameworkCore;
-using Swizom.ViewDataModels;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Authorization;
 using Swizom.Utility;
@@ -49,7 +47,7 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MenuItem menuItem)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 if (await _service.CreateMenuItemAsync(menuItem))
                     return RedirectToAction(nameof(Index));
@@ -60,7 +58,7 @@ namespace Swizom.Controllers
         // GET: MenuItem/Edit
         public async Task<IActionResult> Edit(int id)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var menuItem = await _service.GetMenuItemAsync(id);
 
@@ -81,7 +79,7 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, MenuItem menuItem)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 if (await _service.UpdateMenuItemAsync(id, menuItem))
                     return RedirectToAction(nameof(Index));

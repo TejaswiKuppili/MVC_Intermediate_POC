@@ -23,7 +23,7 @@ namespace Swizom.Controllers
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 6)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var restaurants = await _context.Restaurants.ToListAsync();
 
@@ -50,7 +50,7 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Restaurant restaurant)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 if (ModelState.IsValid)
                 {
@@ -63,7 +63,7 @@ namespace Swizom.Controllers
         }
         public async Task<IActionResult> Edit(int id)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var restaurant = await _context.Restaurants.FindAsync(id);
                 if (restaurant == null)
@@ -78,7 +78,7 @@ namespace Swizom.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Restaurant restaurant)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 if (id != restaurant.RestaurantID)
                 {
@@ -97,7 +97,7 @@ namespace Swizom.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var restaurant = await _context.Restaurants.FindAsync(id);
                 if (restaurant == null)

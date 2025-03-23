@@ -22,7 +22,7 @@ namespace Swizom.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
@@ -36,7 +36,7 @@ namespace Swizom.Controllers
 
         public async Task<IActionResult> Users()
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
                 var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
