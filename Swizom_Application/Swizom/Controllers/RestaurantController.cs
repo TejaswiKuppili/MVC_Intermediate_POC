@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Swizom.Services.IServices;
 using Swizom.Utility;
 using SwizomDbContext;
 using SwizomDbContext.Models;
@@ -13,32 +14,27 @@ namespace Swizom.Controllers
     public class RestaurantController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IRestaurantService _service;
         private readonly ExceptionHandler _exceptionHandler;
 
-        public RestaurantController(AppDbContext context, ExceptionHandler exceptionHandler)
+        public RestaurantController(AppDbContext context, ExceptionHandler exceptionHandler, IRestaurantService service)
         {
             _context = context;
             _exceptionHandler = exceptionHandler;
+            _service = service;
         }
 
         public async Task<IActionResult> Index(int page = 1, int pageSize = 6)
         {
-            return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
+            return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                var restaurants = await _context.Restaurants.ToListAsync();
-
-                if (restaurants == null)
-                {
-                    return StatusCode(500, "Failed to retrieve restaurants.");
-                }
-
-                var paginatedRestaurants = restaurants.Skip((page - 1) * pageSize).Take(pageSize);
+                var (restaurants, totalCount) = await _service.GetRestaurantsAsync(page, pageSize);
 
                 ViewBag.CurrentPage = page;
-                ViewBag.TotalPages = (int)Math.Ceiling((double)restaurants.Count() / pageSize);
+                ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-                return View(paginatedRestaurants);
-            }, "Index");
+                return View(restaurants);
+            }, "Error in Index method");
         }
 
         public IActionResult Create()
@@ -52,27 +48,25 @@ namespace Swizom.Controllers
         {
             return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
-                if (ModelState.IsValid)
-                {
-                    _context.Add(restaurant);
-                    await _context.SaveChangesAsync();
+                if (await _service.CreateRestaurantAsync(restaurant))
                     return RedirectToAction(nameof(Index));
-                }
                 return View(restaurant);
-            }, "Create");
+            }, "Error in Create method");
         }
+
         public async Task<IActionResult> Edit(int id)
         {
             return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
-                var restaurant = await _context.Restaurants.FindAsync(id);
+                var restaurant = await _service.GetRestaurantAsync(id);
                 if (restaurant == null)
                 {
                     return NotFound();
                 }
                 return View(restaurant);
-            }, "Edit");
+            }, "Error in Edit method");
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -87,25 +81,24 @@ namespace Swizom.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    _context.Update(restaurant);
-                    await _context.SaveChangesAsync();
+                    await _service.UpdateRestaurantAsync(id, restaurant);
                     return RedirectToAction(nameof(Index));
                 }
                 return View(restaurant);
-            }, "Edit");
+            }, "Error in Edit method");
         }
 
         public async Task<IActionResult> Delete(int id)
         {
             return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
-                var restaurant = await _context.Restaurants.FindAsync(id);
+                var restaurant = await _service.GetRestaurantAsync(id);
                 if (restaurant == null)
                 {
                     return NotFound();
                 }
                 return View(restaurant);
-            }, "Delete");
+            }, "Error in Delete method");
         }
 
         [HttpPost, ActionName("DeleteConfirmed")]
@@ -114,17 +107,9 @@ namespace Swizom.Controllers
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                var restaurant = await _context.Restaurants
-                    .Include(r => r.MenuCategories).FirstOrDefaultAsync(r => r.RestaurantID == id);
-
-                if (restaurant != null)
-                {
-                    _context.MenuCategories.RemoveRange(restaurant.MenuCategories);
-                    _context.Restaurants.Remove(restaurant);
-                    await _context.SaveChangesAsync();
-                }
+                await _service.DeleteRestaurantAsync(id);
                 return RedirectToAction(nameof(Index));
-            }, "DeleteConfirmed");
+            }, "Error in DeleteConfirmed method");
         }
     }
 }

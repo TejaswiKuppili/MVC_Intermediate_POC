@@ -2,6 +2,7 @@
 using Swizom.Repository.IRepository;
 using Swizom.Utility;
 using SwizomDbContext;
+using SwizomDbContext.Models;
 
 namespace Swizom.Repository
 {
@@ -55,11 +56,29 @@ namespace Swizom.Repository
                 var entity = await GetByIdAsync(id);
                 if (entity != null)
                 {
+                    // Check for related entities before deletion
+                    await HandleRelatedEntitiesBeforeDelete(entity);
+
                     _dbSet.Remove(entity);
                     await _context.SaveChangesAsync();
                 }
                 return Task.CompletedTask;
             }, "Error in DeleteAsync");
         }
+
+        private async Task HandleRelatedEntitiesBeforeDelete<T>(T entity) where T : class
+        {
+            if (entity is Restaurant restaurant)
+            {
+                var relatedMenuCategories = _context.MenuCategories
+                    .Where(mc => mc.RestaurantID == restaurant.RestaurantID);
+                var relatedMenuItems = _context.MenuItems.Where(mi => mi.RestaurantID == restaurant.RestaurantID);
+
+                _context.MenuCategories.RemoveRange(relatedMenuCategories);
+                _context.MenuItems.RemoveRange(relatedMenuItems);
+                await _context.SaveChangesAsync();
+            }
+        }
+    
     }
 }

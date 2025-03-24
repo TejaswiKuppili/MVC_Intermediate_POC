@@ -12,20 +12,26 @@ namespace SwizomDbContext
         public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
-        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<OrderDetail>()
                 .HasOne(od => od.Order)
                 .WithMany()
                 .HasForeignKey(od => od.OrderID)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<OrderDetail>()
                 .HasOne(od => od.Item)
                 .WithMany()
                 .HasForeignKey(od => od.ItemID)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Restaurant>()
+            .HasMany(r => r.MenuCategories)
+            .WithOne(mc => mc.Restaurant)
+            .HasForeignKey(mc => mc.RestaurantID)
+            .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
