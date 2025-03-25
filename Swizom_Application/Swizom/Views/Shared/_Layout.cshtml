@@ -84,15 +84,19 @@
         <div class="sidebar" id="sidebar">
             <h4 class="text-center mb-3">Swizom Admin</h4>
 
-            @if (User.IsInRole("Admin") || User.IsInRole("Employee"))
+            @if (User.IsInRole("Admin"))
             {
                 <a asp-controller="Restaurant" asp-action="Index" class="active">🏪 Manage Restaurants</a>
                 <a asp-controller="MenuCategory" asp-action="Index">📜 Manage Categories</a>
                 <a asp-controller="MenuItem" asp-action="Index">🍽️ Manage Menu Items</a>
+                <a asp-controller="Order" asp-action="Index" class="active">🛒 Manage Orders</a>
                 <a href="#">📊 Analytics</a>
                 <a href="#">⚙️ Settings</a>
             }
-            <a asp-controller="Order" asp-action="Index" class="active">🛒 Manage Orders</a>
+            else if (User.IsInRole("Employee"))
+            {
+                <a asp-controller="Order" asp-action="Index" class="active">🛒 Manage Orders</a>
+            }
 
         </div>
     </div>

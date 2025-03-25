@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Authorization;
 using Swizom.Utility;
 using Swizom.Services.IServices;
+using Swizom.ViewDataModels;
 
 namespace Swizom.Controllers
 {
@@ -44,7 +45,14 @@ namespace Swizom.Controllers
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                ViewBag.Categories = await _service.GetCategoriesAsync();
+                var categories = await _service.GetCategoriesAsync();
+                ViewBag.Categories = categories.Select(c => new MenuCategoryDTO 
+                { 
+                    CategoryID = c.CategoryID,
+                    Name = c.Name 
+                })
+                .DistinctBy(c => c.Name)
+                .ToList();
                 ViewBag.Restaurants = await _service.GetRestaurantsAsync();
                 return View();
             }, "Error in Create method");
@@ -75,7 +83,14 @@ namespace Swizom.Controllers
                     return NotFound();
                 }
 
-                ViewBag.Categories = await _service.GetCategoriesAsync();
+                var categories = await _service.GetCategoriesAsync();
+                ViewBag.Categories = categories.Select(c => new MenuCategoryDTO
+                {
+                    CategoryID = c.CategoryID,
+                    Name = c.Name
+                })
+                .DistinctBy(c => c.Name)
+                .ToList();
                 ViewBag.Restaurants = await _service.GetRestaurantsAsync();
 
                 return View(menuItem);
