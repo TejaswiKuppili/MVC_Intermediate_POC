@@ -9,7 +9,7 @@ using SwizomDbContext.Models;
 
 namespace Swizom.Controllers
 {
-    [Authorize(Policy = "Adminonly")]
+    [Authorize(Policy = "AdminOnly")]
     //[Authorize(Policy = "AdminAndEmployee")]
     public class RestaurantController : Controller
     {

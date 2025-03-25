@@ -26,9 +26,17 @@ namespace Swizom.Controllers
         }
 
         // GET: MenuItem/Index
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 4)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () => View(await _service.GetMenuItemsAsync()), "Error in Index method");
+            return await _exceptionHandler.HandleExceptionsAsync(async () => 
+            {
+                var (menuItems, totalCount) = await _service.GetMenuItemsAsync(page, pageSize);
+
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+                return View(menuItems);
+            }, "Error fetching menu items.");
         }
 
         // GET: MenuItem/Create
@@ -91,7 +99,10 @@ namespace Swizom.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var menuItem = await _service.GetMenuItemAsync(id);
-            if (menuItem == null) return NotFound();
+            if (menuItem == null)
+            {
+                return NotFound();
+            }
             return View(menuItem);
         }
 

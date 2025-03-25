@@ -39,6 +39,34 @@
     }
 </div>
 
+
+<!-- Pagination -->
+
+<nav>
+    <ul class="pagination justify-content-center">
+        @if (ViewBag.CurrentPage > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@(ViewBag.CurrentPage - 1)">Previous</a>
+            </li>
+        }
+
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@i">@i</a>
+            </li>
+        }
+
+        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@(ViewBag.CurrentPage + 1)">Next</a>
+            </li>
+        }
+    </ul>
+</nav>
+
 <script>
     // Initialize Bootstrap tooltips
     document.addEventListener("DOMContentLoaded", function () {

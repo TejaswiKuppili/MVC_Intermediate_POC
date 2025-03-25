@@ -9,12 +9,10 @@ namespace Swizom.Services
     public class RestaurantService : IRestaurantService
     {
         private readonly IRestaurantRepository _repository;
-        private readonly ExceptionHandler _exceptionHandler;
 
-        public RestaurantService(IRestaurantRepository repository, ExceptionHandler exceptionHandler)
+        public RestaurantService(IRestaurantRepository repository)
         {
             _repository = repository;
-            _exceptionHandler = exceptionHandler;
         }
 
         public async Task<(IEnumerable<Restaurant>, int)> GetRestaurantsAsync(int page, int pageSize)

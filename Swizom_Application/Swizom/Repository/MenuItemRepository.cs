@@ -12,11 +12,9 @@ namespace Swizom.Repository
     {
         public MenuItemRepository(AppDbContext context, ExceptionHandler exceptionHandler) : base(context, exceptionHandler) { }
 
-        public async Task<IEnumerable<MenuItemDTO>> GetAllMenuItemsAsync()
+        public async Task<(IEnumerable<MenuItemDTO>, int)> GetAllMenuItemsAsync(int page, int pageSize)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
-            {
-                return await (from m in _context.MenuItems
+            var menuItems = from m in _context.MenuItems
                               join c in _context.MenuCategories on m.CategoryID equals c.CategoryID
                               join r in _context.Restaurants on m.RestaurantID equals r.RestaurantID
                               select new MenuItemDTO
@@ -27,8 +25,15 @@ namespace Swizom.Repository
                                   Price = m.Price,
                                   CategoryName = c.Name,
                                   RestaurantName = r.Name
-                              }).AsNoTracking().ToListAsync();
-            }, "Error in GetAllMenuItemsAsync");
+                              };
+            var totalMenuItems = await menuItems.CountAsync();
+            var paginatedMenuItems = await menuItems
+                                        .Skip((page - 1) * pageSize)
+                                        .Take(pageSize)
+                                        .AsNoTracking()
+                                        .ToListAsync();
+
+            return (paginatedMenuItems, totalMenuItems);
         }
     }
 }

@@ -6,6 +6,7 @@ using Swizom.ViewDataModels;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Swizom.Utility;
+using Swizom.Services.IServices;
 
 namespace Swizom.Controllers
 {
@@ -13,45 +14,28 @@ namespace Swizom.Controllers
     public class OrderController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IOrderService _service;
         private ExceptionHandler _exceptionHandler;
 
-        public OrderController(AppDbContext context, ExceptionHandler exceptionHandler)
+        public OrderController(AppDbContext context, ExceptionHandler exceptionHandler, IOrderService service)
         {
             _context = context;
             _exceptionHandler = exceptionHandler;
+            _service = service;
         }
 
         // GET: Order/Index
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 4)
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                var orders = await _context.Orders
-                    .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.MenuItem)
-                    .ToListAsync();
+                var (orders, totalCount) = await _service.GetOrdersAsync(page, pageSize);
 
-                var groupedOrders = orders.Select(o => new OrderDTO
-                {
-                    OrderID = o.OrderID,
-                    OrderDate = o.OrderDate,
-                    CustomerName = o.CustomerName,
-                    CustomerPhone = o.CustomerPhone,
-                    DeliveryAddress = o.DeliveryAddress,
-                    TotalAmount = o.TotalAmount,
-                    Status = o.Status,
-                    OrderItems = o.OrderItems.Select(oi => new OrderItemDTO
-                    {
-                        OrderItemID = oi.OrderItemID,
-                        Quantity = oi.Quantity,
-                        Price = oi.Price,
-                        MenuItemName = oi.MenuItem.Name,
-                        MenuItemPrice = oi.MenuItem.Price
-                    }).ToList()
-                }).ToList();
+                ViewBag.CurrentPage = page;
+                ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-                return View(groupedOrders);
-            }, "Orders");
+                return View(orders);
+            }, "Error fetching orders.");
         }
 
         // GET: Order/Create
@@ -59,9 +43,9 @@ namespace Swizom.Controllers
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                ViewBag.MenuItems = await _context.MenuItems.ToListAsync();
+                ViewBag.MenuItems = await _service.GetMenuItemsAsync();
                 return View();
-            }, "Create");
+            }, "Error loading create order page.");
         }
 
         // POST: Order/Create
@@ -71,35 +55,10 @@ namespace Swizom.Controllers
         {
             return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
-                if (ItemID.Length > 0)
-                {
-                    order.OrderDate = DateTime.Now;
-                    order.Status = OrderStatus.Pending;
-                    order.TotalAmount = 0;
-
-                    for (int i = 0; i < ItemID.Length; i++)
-                    {
-                        var menuItem = await _context.MenuItems.FindAsync(ItemID[i]);
-                        if (menuItem != null)
-                        {
-                            var orderItem = new OrderItem
-                            {
-                                ItemID = ItemID[i],
-                                Quantity = Quantity[i],
-                                Price = menuItem.Price
-                            };
-                            order.TotalAmount += orderItem.Total;
-                            order.OrderItems.Add(orderItem);
-                        }
-                    }
-                    _context.Orders.Add(order);
-                    await _context.SaveChangesAsync();
+                if(await _service.CreateOrderAsync(order, ItemID, Quantity))
                     return RedirectToAction(nameof(Index));
-                }
-
-                ViewBag.MenuItems = await _context.MenuItems.ToListAsync();
                 return View(order);
-            }, "Create");
+            }, "Error creating order.");
         }
 
         // GET: Order/Edit/{id}
@@ -107,36 +66,13 @@ namespace Swizom.Controllers
         {
             return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
-                var order = await _context.Orders
-                    .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.MenuItem)
-                    .FirstOrDefaultAsync(o => o.OrderID == id);
+                var order = await _service.GetOrderAsync(id);
 
                 if (order == null)
                 {
                     return NotFound();
                 }
-
-                var orderDto = new OrderDTO
-                {
-                    OrderID = order.OrderID,
-                    OrderDate = order.OrderDate,
-                    CustomerName = order.CustomerName,
-                    CustomerPhone = order.CustomerPhone,
-                    DeliveryAddress = order.DeliveryAddress,
-                    TotalAmount = order.TotalAmount,
-                    Status = order.Status,
-                    OrderItems = order.OrderItems.Select(oi => new OrderItemDTO
-                    {
-                        OrderItemID = oi.OrderItemID,
-                        Quantity = oi.Quantity,
-                        Price = oi.Price,
-                        MenuItemName = oi.MenuItem.Name,
-                        MenuItemPrice = oi.MenuItem.Price
-                    }).ToList()
-                };
-
-                return View(orderDto);
+                return View(order);
             }, "Error in Edit action");
         }
 
@@ -151,59 +87,25 @@ namespace Swizom.Controllers
                     return NotFound();
                 }
 
-                var order = await _context.Orders
-                    .Include(o => o.OrderItems)
-                    .FirstOrDefaultAsync(o => o.OrderID == id);
-
-                if (order == null)
-                {
-                    return NotFound();
-                }
-
-                // Update order details from DTO
-                order.CustomerName = orderDto.CustomerName;
-                order.CustomerPhone = orderDto.CustomerPhone;
-                order.DeliveryAddress = orderDto.DeliveryAddress;
-                order.TotalAmount = orderDto.TotalAmount;
-                order.Status = orderDto.Status;
-
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
-            }, "Edit");
+                if(await _service.UpdateOrderAsync(id, orderDto))
+                    return RedirectToAction(nameof(Index));
+                return View(orderDto);
+            }, "Error updating order.");
         }
-
 
         // GET: Order/Delete/{id}
         public async Task<IActionResult> Delete(int id)
         {
             return await _exceptionHandler.HandleExceptionsAsync<IActionResult>(async () =>
             {
-                var order = await _context.Orders.FindAsync(id);
+                var order = await _service.GetOrderAsync(id);
                 if (order == null)
                 {
                     return NotFound();
                 }
-                var orderDTO = new OrderDTO
-                {
-                    OrderID = order.OrderID,
-                    OrderDate = order.OrderDate,
-                    CustomerName = order.CustomerName,
-                    CustomerPhone = order.CustomerPhone,
-                    DeliveryAddress = order.DeliveryAddress,
-                    TotalAmount = order.TotalAmount,
-                    Status = order.Status,
-                    OrderItems = order.OrderItems.Select(oi => new OrderItemDTO
-                    {
-                        OrderItemID = oi.OrderItemID,
-                        Quantity = oi.Quantity,
-                        Price = oi.Price,
-                        MenuItemName = oi.MenuItem.Name,
-                        MenuItemPrice = oi.MenuItem.Price
-                    }).ToList()
-                };
-                return View(orderDTO);
-            }, "Error in Delete action");
+                
+                return View(order);
+            }, "Error loading delete order page.");
         }
 
         // POST: Order/Delete/{id}
@@ -213,14 +115,9 @@ namespace Swizom.Controllers
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                var order = await _context.Orders.FindAsync(id);
-                if (order != null)
-                {
-                    _context.Orders.Remove(order);
-                    await _context.SaveChangesAsync();
-                }
+                var order = await _service.DeleteOrderAsync(id);
                 return RedirectToAction(nameof(Index));
-            }, "Error in DeleteConfirmed action");
+            }, "Error deleting order.");
         }
     }
 }
