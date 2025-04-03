@@ -17,9 +17,9 @@ namespace Swizom.Services
             _menuItemRepository = menuItemRepository;
         }
 
-        public async Task<(IEnumerable<OrderDTO>, int)> GetOrdersAsync(int page, int pageSize)
+        public async Task<(IEnumerable<OrderDTO>, int)> GetOrdersAsync(string search, int page, int pageSize)
         {
-            return await _repository.GetAllOrdersAsync(page, pageSize);
+            return await _repository.GetAllOrdersAsync(search, page, pageSize);
         }
 
         public async Task<OrderDTO> GetOrderAsync(int id)

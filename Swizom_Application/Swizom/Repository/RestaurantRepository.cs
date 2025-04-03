@@ -5,6 +5,7 @@ using SwizomDbContext.Models;
 using SwizomDbContext;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models.Security;
 
 namespace Swizom.Repository
 {
@@ -12,18 +13,18 @@ namespace Swizom.Repository
     {
         public RestaurantRepository(AppDbContext context, ExceptionHandler exceptionHandler) : base(context, exceptionHandler) { }
 
-        public async Task<(IEnumerable<Restaurant>, int)> GetAllRestaurantsAsync(int page, int pageSize)
+        public async Task<(IEnumerable<Restaurant>, int)> GetAllRestaurantsAsync(string search, int page, int pageSize)
         {
-            return await _exceptionHandler.HandleExceptionsAsync(async () =>
-            {
-                var restaurants = _context.Restaurants.Select(r => new Restaurant
+                var restaurants = _context.Restaurants.AsQueryable();
+
+                if (!string.IsNullOrEmpty(search))
                 {
-                    RestaurantID = r.RestaurantID,
-                    Name = r.Name,
-                    Address = r.Address,
-                    ContactNumber = r.ContactNumber
-                });
-                
+                    search = search.ToLower();
+                    restaurants = restaurants.Where(r => r.Name.ToLower().Contains(search) ||
+                                             r.Address.ToLower().Contains(search) ||
+                                             r.ContactNumber.Contains(search));
+                }
+
                 var totalRestaurants = await restaurants.CountAsync();
                 var paginatedRestaurants = await restaurants
                                             .Skip((page - 1) * pageSize)
@@ -32,7 +33,6 @@ namespace Swizom.Repository
                                             .ToListAsync();
 
                 return (paginatedRestaurants, totalRestaurants);
-            }, "Index");
         }
     }
 }

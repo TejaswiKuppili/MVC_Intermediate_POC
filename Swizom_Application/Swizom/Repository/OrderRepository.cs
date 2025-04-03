@@ -11,10 +11,19 @@ namespace Swizom.Repository
     {
         public OrderRepository(AppDbContext context, ExceptionHandler exceptionHandler) : base(context, exceptionHandler) { }
 
-        public async Task<(IEnumerable<OrderDTO>, int)> GetAllOrdersAsync(int page, int pageSize)
+        public async Task<(IEnumerable<OrderDTO>, int)> GetAllOrdersAsync(string search, int page, int pageSize)
         {
-            var orders = _context.Orders
-                .Include(o => o.OrderItems)
+            var orders = _context.Orders.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                orders = orders.Where(o => o.CustomerName.ToLower().Contains(search) ||
+                                         o.DeliveryAddress.ToLower().Contains(search) ||
+                                         o.CustomerPhone.Contains(search));
+            }
+
+            var orderDetails = orders.Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.MenuItem);
 
             var totalOrders = await orders.CountAsync();

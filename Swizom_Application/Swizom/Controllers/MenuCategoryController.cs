@@ -25,14 +25,15 @@ namespace Swizom.Controllers
             _service = service;
         }
 
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 6)
+        public async Task<IActionResult> Index(string search = "", int page = 1, int pageSize = 6)
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                var (categories, totalCount) = await _service.GetMenuCategoriesAsync(page, pageSize);
+                var (categories, totalCount) = await _service.GetMenuCategoriesAsync(search, page, pageSize);
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+                ViewBag.SearchQuery = search; //Ensures the search value stays in the input field
 
                 return View(categories);
             }, "Error fetching menu categories.");

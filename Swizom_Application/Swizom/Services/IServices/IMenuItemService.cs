@@ -5,7 +5,7 @@ namespace Swizom.Services.IServices
 {
     public interface IMenuItemService
     {
-        Task<(IEnumerable<MenuItemDTO>, int)> GetMenuItemsAsync(int page, int pageSize);
+        Task<(IEnumerable<MenuItemDTO>, int)> GetMenuItemsAsync(string search, int page, int pageSize);
         Task<MenuItem?> GetMenuItemAsync(int id);
         Task<IEnumerable<MenuCategory>> GetCategoriesAsync();
         Task<IEnumerable<Restaurant>> GetRestaurantsAsync();

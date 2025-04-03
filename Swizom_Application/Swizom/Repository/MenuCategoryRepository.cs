@@ -11,16 +11,26 @@ namespace Swizom.Repository
     {
         public MenuCategoryRepository(AppDbContext context, ExceptionHandler exceptionHandler) : base(context, exceptionHandler) { }
 
-        public async Task<(IEnumerable<MenuCategoryDTO>, int)> GetAllMenuCategoriesAsync(int page, int pageSize)
+        public async Task<(IEnumerable<MenuCategoryDTO>, int)> GetAllMenuCategoriesAsync(string search, int page, int pageSize)
         {
-            var categories = from c in _context.MenuCategories
-                          join r in _context.Restaurants on c.RestaurantID equals r.RestaurantID
-                          select new MenuCategoryDTO
-                          {
-                              CategoryID = c.CategoryID,
-                              Name = c.Name,
-                              RestaurantName = r.Name
-                          };
+            var categories = _context.MenuCategories
+                              .Join(_context.Restaurants,
+                                    c => c.RestaurantID,
+                                    r => r.RestaurantID,
+                                    (c, r) => new MenuCategoryDTO
+                                    {
+                                        CategoryID = c.CategoryID,
+                                        Name = c.Name,
+                                        RestaurantName = r.Name
+                                    })
+                              .AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                search = search.ToLower();
+                categories = categories.Where(c => c.Name.ToLower().Contains(search) ||
+                                                   c.RestaurantName.ToLower().Contains(search));
+            }
 
             var totalCategories = await categories.CountAsync();
             var paginatedCategories = await categories

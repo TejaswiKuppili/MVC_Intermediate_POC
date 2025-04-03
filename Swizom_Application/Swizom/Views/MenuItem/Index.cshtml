@@ -11,9 +11,19 @@
     <i class="bi bi-plus-circle"></i> Add New Item
 </a>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<!--Searches only in current page | Client-Side Pagination-->
+
+@* <div class="d-flex justify-content-between align-items-center mb-3">
     <input type="text" id="searchInput" class="form-control w-25" placeholder="Search items..." onkeyup="filterMenuItems()">
-</div>
+</div> *@
+
+<!--Searches in all the pages | Server-Side Pagination implemented for better performance-->
+<form asp-controller="MenuItem" asp-action="Index" method="get" class="mb-3 d-flex">
+    <div class="input-group d-flex justify-content-between align-items-center mb-3">
+        <input type="text" name="search" value="@ViewBag.SearchQuery" class="form-control" placeholder="Search menu items..." />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
 
 <div class="row">
     @foreach (var item in Model)
@@ -58,30 +68,73 @@
 </div>
 
 <!-- No Results Message -->
-<p id="noResultsMessage" class="text-center text-muted mt-3" style="display: none;">No menu items found.</p>
+@if (!Model.Any())
+{
+    <p class="text-center text-muted mt-3">
+        No menu items found.
+    </p>
+}
 
 <!-- Pagination -->
-<nav>
-    <ul class="pagination justify-content-center">
-        @if (ViewBag.CurrentPage > 1)
-        {
-            <li class="page-item">
-                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@(ViewBag.CurrentPage - 1)">Previous</a>
-            </li>
-        }
+<div id="paginationContainer">
+    <nav>
+        <ul class="pagination justify-content-center">
+            @if (ViewBag.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index" asp-route-search="@ViewBag.SearchQuery" asp-route-page="@(ViewBag.CurrentPage - 1)">Previous</a>
+                </li>
+            }
 
-        @for (int i = 1; i <= ViewBag.TotalPages; i++)
-        {
-            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@i">@i</a>
-            </li>
-        }
+            @if (ViewBag.TotalPages <= 6)
+            {
+                // Show all pages if total pages are 6 or less
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-search="@ViewBag.SearchQuery" asp-route-page="@i">@i</a>
+                    </li>
+                }
+            }
+            else
+            {
+                // Show first page
+                <li class="page-item @(1 == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="1">1</a>
+                </li>
 
-        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-        {
-            <li class="page-item">
-                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@(ViewBag.CurrentPage + 1)">Next</a>
-            </li>
-        }
-    </ul>
-</nav>
+                // Show "..." if needed
+                @if (ViewBag.CurrentPage > 3)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+
+                // Show 2 pages before and after current page
+                @for (int i = Math.Max(2, ViewBag.CurrentPage - 2); i <= Math.Min(ViewBag.TotalPages - 1, ViewBag.CurrentPage + 2); i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+                    </li>
+                }
+
+                // Show "..." if needed
+                @if (ViewBag.CurrentPage < ViewBag.TotalPages - 2)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+
+                // Show last page
+                <li class="page-item @(ViewBag.TotalPages == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@ViewBag.TotalPages">@ViewBag.TotalPages</a>
+                </li>
+            }
+
+            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>

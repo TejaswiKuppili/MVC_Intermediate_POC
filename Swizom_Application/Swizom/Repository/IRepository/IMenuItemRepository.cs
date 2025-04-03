@@ -5,6 +5,6 @@ namespace Swizom.Repository.IRepository
 {
     public interface IMenuItemRepository : IGenericRepository<MenuItem>
     {
-        Task<(IEnumerable<MenuItemDTO>, int)> GetAllMenuItemsAsync(int page, int pageSize);
+        Task<(IEnumerable<MenuItemDTO>, int)> GetAllMenuItemsAsync(string search, int page, int pageSize);
     }
 }

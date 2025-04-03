@@ -25,14 +25,15 @@ namespace Swizom.Controllers
         }
 
         // GET: Order/Index
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 4)
+        public async Task<IActionResult> Index(string search = "", int page = 1, int pageSize = 4)
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                var (orders, totalCount) = await _service.GetOrdersAsync(page, pageSize);
+                var (orders, totalCount) = await _service.GetOrdersAsync(search, page, pageSize);
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+                ViewBag.SearchQuery = search; //Ensures the search value stays in the input field
 
                 return View(orders);
             }, "Error fetching orders.");

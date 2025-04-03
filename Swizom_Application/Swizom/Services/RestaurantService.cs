@@ -15,9 +15,9 @@ namespace Swizom.Services
             _repository = repository;
         }
 
-        public async Task<(IEnumerable<Restaurant>, int)> GetRestaurantsAsync(int page, int pageSize)
+        public async Task<(IEnumerable<Restaurant>, int)> GetRestaurantsAsync(string search, int page, int pageSize)
         {
-            return await _repository.GetAllRestaurantsAsync(page, pageSize);
+            return await _repository.GetAllRestaurantsAsync(search, page, pageSize);
         }
 
         public async Task<Restaurant?> GetRestaurantAsync(int id)

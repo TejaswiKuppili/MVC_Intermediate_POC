@@ -5,6 +5,6 @@ namespace Swizom.Repository.IRepository
 {
     public interface IRestaurantRepository : IGenericRepository<Restaurant>
     {
-        Task<(IEnumerable<Restaurant>, int)> GetAllRestaurantsAsync(int page, int pageSize);
+        Task<(IEnumerable<Restaurant>, int)> GetAllRestaurantsAsync(string search, int page, int pageSize);
     }
 }

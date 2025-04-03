@@ -17,9 +17,9 @@ namespace Swizom.Services
             _restaurantRepository = restaurantRepository;
         }
 
-        public async Task<(IEnumerable<MenuCategoryDTO>, int)> GetMenuCategoriesAsync(int page, int pageSize)
+        public async Task<(IEnumerable<MenuCategoryDTO>, int)> GetMenuCategoriesAsync(string search, int page, int pageSize)
         {
-            return await _repository.GetAllMenuCategoriesAsync(page, pageSize);
+            return await _repository.GetAllMenuCategoriesAsync(search, page, pageSize);
         }
 
         public async Task<MenuCategory?> GetMenuCategoryAsync(int id)
