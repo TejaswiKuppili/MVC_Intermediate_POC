@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Restaurants";
 }
+<script src="~/js/Restaurant/Restaurant.js" asp-append-version="true"></script>
 
 <h2 class="mb-4">Restaurants</h2>
 
@@ -10,18 +11,22 @@
     <i class="bi bi-plus-circle"></i> Add New Restaurant
 </a>
 
-<div class="row restaurant-cards">
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <input type="text" id="searchInput" class="form-control w-25" placeholder="Search restaurants..." onkeyup="filterRestaurants()">
+</div>
+
+<div class="row restaurant-cards" id="restaurantList">
     @foreach (var item in Model)
     {
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-4 restaurant-card">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h5 class="card-title">
-                        <i class="bi bi-shop"></i> @item.Name
+                        <i class="bi bi-shop"></i> <span class="restaurant-name">@item.Name</span>
                     </h5>
 
                     <p class="text-muted address-text">
-                        <i class="bi bi-geo-alt"></i> <strong>@item.Address</strong>
+                        <i class="bi bi-geo-alt"></i> <strong class="restaurant-address">@item.Address</strong>
                     </p>
 
                     <p>
@@ -43,39 +48,35 @@
     }
 </div>
 
+<!-- No results message -->
+<p id="noResultsMessage" class="text-center text-muted mt-3" style="display: none;">
+    No restaurants found.
+</p>
+
 <!-- Pagination -->
+<div id="paginationContainer">
+    <nav>
+        <ul class="pagination justify-content-center">
+            @if (ViewBag.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage - 1)">Previous</a>
+                </li>
+            }
 
-<nav>
-    <ul class="pagination justify-content-center">
-        @if (ViewBag.CurrentPage > 1)
-        {
-            <li class="page-item">
-                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@(ViewBag.CurrentPage - 1)">Previous</a>
-            </li>
-        }
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@i">@i</a>
+                </li>
+            }
 
-        @for (int i = 1; i <= ViewBag.TotalPages; i++)
-        {
-            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@i">@i</a>
-            </li>
-        }
-
-        @if (ViewBag.CurrentPage < ViewBag.TotalPages)
-        {
-            <li class="page-item">
-                <a class="page-link" asp-action="Index" asp-route-restaurantId="@ViewBag.RestaurantId" asp-route-page="@(ViewBag.CurrentPage + 1)">Next</a>
-            </li>
-        }
-    </ul>
-</nav>
-
-<script>
-    // Initialize Bootstrap tooltips
-    document.addEventListener("DOMContentLoaded", function () {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    });
-</script>
+            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage + 1)">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>

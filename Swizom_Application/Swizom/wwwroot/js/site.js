@@ -1,4 +1,20 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿document.addEventListener("DOMContentLoaded", function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
 
-// Write your JavaScript code.
+document.addEventListener("DOMContentLoaded", function () {
+    var links = document.querySelectorAll(".sidebar a, .menu-item-link");
+
+    links.forEach(link => {
+        link.addEventListener("click", function () {
+            document.getElementById("loader").style.display = "flex";
+        });
+    });
+
+    window.addEventListener("load", function () {
+        document.getElementById("loader").style.display = "none";
+    });
+});

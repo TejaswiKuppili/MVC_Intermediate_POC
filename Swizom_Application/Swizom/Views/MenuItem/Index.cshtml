@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Menu Items";
 }
+<script src="~/js/MenuItem/MenuItem.js" asp-append-version="true"></script>
 
 <h2 class="mb-4">Menu Items</h2>
 
@@ -10,10 +11,14 @@
     <i class="bi bi-plus-circle"></i> Add New Item
 </a>
 
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <input type="text" id="searchInput" class="form-control w-25" placeholder="Search items..." onkeyup="filterMenuItems()">
+</div>
+
 <div class="row">
     @foreach (var item in Model)
     {
-        <div class="col-md-4 mb-4">
+        <div class="col-md-4 mb-4 menu-item-card">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h5 class="card-title">
@@ -52,8 +57,10 @@
     }
 </div>
 
-<!-- Pagination -->
+<!-- No Results Message -->
+<p id="noResultsMessage" class="text-center text-muted mt-3" style="display: none;">No menu items found.</p>
 
+<!-- Pagination -->
 <nav>
     <ul class="pagination justify-content-center">
         @if (ViewBag.CurrentPage > 1)
@@ -78,13 +85,3 @@
         }
     </ul>
 </nav>
-
-<script>
-    // Initialize Bootstrap tooltips
-    document.addEventListener("DOMContentLoaded", function () {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    });
-</script>

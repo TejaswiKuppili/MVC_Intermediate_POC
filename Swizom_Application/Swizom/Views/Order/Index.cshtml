@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Orders";
 }
+<script src="~/js/Order/Order.js" asp-append-version="true"></script>
 
 <h2 class="mb-4">Orders</h2>
 
@@ -10,10 +11,14 @@
     <i class="bi bi-plus-circle"></i> Place New Order
 </a>
 
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <input type="text" id="searchInput" class="form-control w-25" placeholder="Search orders..." onkeyup="filterOrders()">
+</div>
+
 <div class="row">
     @foreach (var order in Model)
     {
-        <div class="col-md-6 mb-4">
+        <div class="col-md-6 mb-4 order-card">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
                     <h5 class="card-title">
@@ -53,6 +58,9 @@
     }
 </div>
 
+<!-- No Results Message -->
+<p id="noResultsMessage" class="text-center text-muted mt-3" style="display: none;">No orders found</p>
+
 <!-- Pagination -->
 <nav>
     <ul class="pagination justify-content-center">
@@ -78,16 +86,6 @@
         }
     </ul>
 </nav>
-
-<script>
-    // Initialize Bootstrap tooltips
-    document.addEventListener("DOMContentLoaded", function () {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    });
-</script>
 
 @functions {
     string GetStatusBadgeClass(string status)
