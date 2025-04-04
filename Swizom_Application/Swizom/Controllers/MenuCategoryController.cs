@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Swizom.Repository.IRepository;
 using Swizom.Services.IServices;
 using Swizom.Utility;
@@ -17,19 +18,26 @@ namespace Swizom.Controllers
         private readonly AppDbContext _context;
         private readonly IMenuCategoryService _service;
         private readonly ExceptionHandler _exceptionHandler;
+        private readonly IMemoryCache _cache;
 
-        public MenuCategoryController(AppDbContext context, ExceptionHandler exceptionHandler, IMenuCategoryService service)
+        public MenuCategoryController(AppDbContext context, ExceptionHandler exceptionHandler, IMenuCategoryService service, IMemoryCache cache)
         {
             _context = context;
             _exceptionHandler = exceptionHandler;
             _service = service;
+            _cache = cache;
         }
 
+        [ResponseCache(Duration = 60)]
         public async Task<IActionResult> Index(string search = "", int page = 1, int pageSize = 6)
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                var (categories, totalCount) = await _service.GetMenuCategoriesAsync(search, page, pageSize);
+                var cacheKey = $"MenuCategory_{search}_{page}_{pageSize}";
+
+                var (cachedData, _) = await CacheHelper.GetOrSetAsync(_cache, cacheKey, () => _service.GetMenuCategoriesAsync(search, page, pageSize));
+
+                var (categories, totalCount) = cachedData;
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);

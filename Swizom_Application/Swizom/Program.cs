@@ -29,8 +29,11 @@ builder.Services.AddAuthorization(options =>
         ));
 });
 
-//Reduces response size for faster client-side rendering
+builder.Services.AddMemoryCache();
+builder.Services.AddResponseCaching();
 
+
+//Reduces response size for faster client-side rendering
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
@@ -56,6 +59,9 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseResponseCaching();
+app.UseResponseCompression();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -4,6 +4,8 @@
     ViewData["Title"] = "Restaurants";
 }
 <script src="~/js/Restaurant/Restaurant.js" asp-append-version="true"></script>
+<script src="~/css/Restaurant/Restaurant.css" asp-append-version="true"></script>
+
 
 <h2 class="mb-4">Restaurants</h2>
 
@@ -24,38 +26,39 @@
         <button type="submit" class="btn btn-primary">Search</button>
     </div>
 </form>
+<div class="restaurant-scroll-wrapper" style="max-height: 60vh;">
+    <div class="row restaurant-cards" id="restaurantList">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4 restaurant-card">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-shop"></i> <span class="restaurant-name">@item.Name</span>
+                        </h5>
 
-<div class="row restaurant-cards" id="restaurantList">
-    @foreach (var item in Model)
-    {
-        <div class="col-md-4 mb-4 restaurant-card">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-shop"></i> <span class="restaurant-name">@item.Name</span>
-                    </h5>
+                        <p class="text-muted address-text">
+                            <i class="bi bi-geo-alt"></i> <strong class="restaurant-address">@item.Address</strong>
+                        </p>
 
-                    <p class="text-muted address-text">
-                        <i class="bi bi-geo-alt"></i> <strong class="restaurant-address">@item.Address</strong>
-                    </p>
+                        <p>
+                            <i class="bi bi-telephone"></i> <strong>@item.ContactNumber</strong>
+                        </p>
 
-                    <p>
-                        <i class="bi bi-telephone"></i> <strong>@item.ContactNumber</strong>
-                    </p>
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Edit" asp-route-id="@item.RestaurantID" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
 
-                    <div class="d-flex justify-content-between">
-                        <a asp-action="Edit" asp-route-id="@item.RestaurantID" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-
-                        <a asp-action="Delete" asp-route-id="@item.RestaurantID" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete">
-                            <i class="bi bi-trash"></i>
-                        </a>
+                            <a asp-action="Delete" asp-route-id="@item.RestaurantID" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 <!-- No results message -->

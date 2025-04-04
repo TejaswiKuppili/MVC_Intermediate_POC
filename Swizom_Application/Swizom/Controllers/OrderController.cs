@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Swizom.Utility;
 using Swizom.Services.IServices;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Swizom.Controllers
 {
@@ -16,20 +17,27 @@ namespace Swizom.Controllers
         private readonly AppDbContext _context;
         private readonly IOrderService _service;
         private ExceptionHandler _exceptionHandler;
+        private readonly IMemoryCache _cache;
 
-        public OrderController(AppDbContext context, ExceptionHandler exceptionHandler, IOrderService service)
+        public OrderController(AppDbContext context, ExceptionHandler exceptionHandler, IOrderService service, IMemoryCache cache)
         {
             _context = context;
             _exceptionHandler = exceptionHandler;
             _service = service;
+            _cache = cache;
         }
 
         // GET: Order/Index
+        [ResponseCache(Duration = 60)]
         public async Task<IActionResult> Index(string search = "", int page = 1, int pageSize = 4)
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                var (orders, totalCount) = await _service.GetOrdersAsync(search, page, pageSize);
+                string cacheKey = $"Order_{search}_{page}_{pageSize}";
+
+                var (cachedData, _) = await CacheHelper.GetOrSetAsync(_cache, cacheKey, () => _service.GetOrdersAsync(search, page, pageSize));
+
+                var (orders, totalCount) = cachedData;
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);

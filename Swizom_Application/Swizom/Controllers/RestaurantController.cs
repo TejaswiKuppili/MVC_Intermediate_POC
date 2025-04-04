@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Swizom.Services.IServices;
 using Swizom.Utility;
 using SwizomDbContext;
@@ -14,19 +15,27 @@ namespace Swizom.Controllers
         private readonly AppDbContext _context;
         private readonly IRestaurantService _service;
         private readonly ExceptionHandler _exceptionHandler;
+        private readonly IMemoryCache _cache;
 
-        public RestaurantController(AppDbContext context, ExceptionHandler exceptionHandler, IRestaurantService service)
+        public RestaurantController(AppDbContext context, ExceptionHandler exceptionHandler, IRestaurantService service, IMemoryCache cache)
         {
             _context = context;
             _exceptionHandler = exceptionHandler;
             _service = service;
+            _cache = cache;
         }
 
+        [ResponseCache(Duration = 60)]
         public async Task<IActionResult> Index(string search = "", int page = 1, int pageSize = 6)
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
             {
-                var (restaurants, totalCount) = await _service.GetRestaurantsAsync(search, page, pageSize);
+                string cacheKey = $"Restaurants_{search}_{page}_{pageSize}";
+
+                // Try to get data from cache
+                var (cachedData, _) = await CacheHelper.GetOrSetAsync(_cache, cacheKey, () => _service.GetRestaurantsAsync(search, page, pageSize));
+
+                var (restaurants, totalCount) = cachedData;
 
                 ViewBag.CurrentPage = page;
                 ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / pageSize);
