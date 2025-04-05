@@ -19,6 +19,9 @@ namespace SwizomDbContext.Models
         public string CustomerPhone { get; set; }
 
         [Required]
+        public string CustomerEmail { get; set; }
+
+        [Required]
         public string DeliveryAddress { get; set; }
 
         public decimal TotalAmount { get; set; }

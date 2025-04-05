@@ -8,6 +8,7 @@ namespace Swizom.ViewDataModels
         public DateTime OrderDate { get; set; }
         public string CustomerName { get; set; }
         public string CustomerPhone { get; set; }
+        public string CustomerEmail { get; set; }
         public string DeliveryAddress { get; set; }
         public decimal TotalAmount { get; set; }
         public OrderStatus Status { get; set; }
