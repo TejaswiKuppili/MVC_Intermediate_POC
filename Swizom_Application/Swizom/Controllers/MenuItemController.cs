@@ -27,7 +27,6 @@ namespace Swizom.Controllers
         }
 
         // GET: MenuItem/Index
-        [ResponseCache(Duration = 60)]
         public async Task<IActionResult> Index(string search = "", int page = 1, int pageSize = 4)
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () => 

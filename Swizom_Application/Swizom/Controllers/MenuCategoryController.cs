@@ -28,7 +28,6 @@ namespace Swizom.Controllers
             _cache = cache;
         }
 
-        [ResponseCache(Duration = 60)]
         public async Task<IActionResult> Index(string search = "", int page = 1, int pageSize = 6)
         {
             return await _exceptionHandler.HandleExceptionsAsync(async () =>
